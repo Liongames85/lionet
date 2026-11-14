@@ -9,7 +9,13 @@ const outputPath = path.join(outputDir, 'search-index.json')
 const statusPath = path.join(root, 'data', 'crawl-status.json')
 const statusOutputPath = path.join(outputDir, 'crawl-status.json')
 
-const documents = JSON.parse(await readFile(sourcePath, 'utf8'))
+let documents = []
+try {
+  documents = JSON.parse(await readFile(sourcePath, 'utf8'))
+  if (!Array.isArray(documents)) documents = []
+} catch {
+  // Pierwsze wdrożenie może nie mieć jeszcze lokalnego indeksu; crawler utworzy go później.
+}
 const compactDocuments = documents.map(({ content, images = [], ...document }) => ({
   ...document,
   content: content?.slice(0, 1200) || '',
