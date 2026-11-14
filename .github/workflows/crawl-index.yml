@@ -21,6 +21,7 @@ jobs:
     env:
       VITE_STATIC_MODE: true
       VITE_BASE_PATH: /lionet/
+      NODE_OPTIONS: --max-old-space-size=6144
     steps:
       - name: Pobierz kod i aktualny indeks
         uses: actions/checkout@v4
