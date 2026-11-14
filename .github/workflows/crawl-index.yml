@@ -1,0 +1,52 @@
+name: Update LIOnet index
+
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: lionet-crawler
+  cancel-in-progress: false
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      VITE_STATIC_MODE: true
+      VITE_BASE_PATH: /lionet/
+    steps:
+      - name: Pobierz kod i aktualny indeks
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Skonfiguruj Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Skonfiguruj pnpm
+        run: corepack enable && corepack prepare pnpm@10.18.0 --activate
+      - name: Zainstaluj zależności
+        run: pnpm install --frozen-lockfile
+      - name: Pracuj crawlerem przez darmowy limit zadania
+        run: timeout 25m pnpm run crawl || test $? -eq 124
+      - name: Zapisz postęp indeksu
+        run: |
+          git config user.name "LIOnet crawler"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/index.json data/crawl-status.json
+          git diff --cached --quiet || (git commit -m "chore: update LIOnet index" && git push)
+      - name: Zbuduj aktualną wersję Pages
+        run: pnpm run build && node work/prepare-pages.mjs
+      - name: Prześlij artefakt Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - name: Opublikuj aktualizację
+        uses: actions/deploy-pages@v4
