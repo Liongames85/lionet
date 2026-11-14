@@ -1,0 +1,21 @@
+services:
+  web:
+    build: .
+    command: ["node", "server.mjs"]
+    ports:
+      - "4173:4173"
+    environment:
+      NODE_ENV: production
+      PORT: 4173
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+
+  crawler:
+    build: .
+    command: ["node", "work/lionet-crawl.mjs"]
+    environment:
+      NODE_ENV: production
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped

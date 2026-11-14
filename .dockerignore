@@ -1,0 +1,9 @@
+node_modules
+dist
+.git
+.gitignore
+.codex
+.agents
+work/*.log
+work/*.tmp
+*.DS_Store
