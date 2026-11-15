@@ -9,10 +9,13 @@ const seedsPath = path.join(root, 'data', 'crawl-seeds.json')
 const crawlStatusPath = path.join(root, 'data', 'crawl-status.json')
 const crawlUserAgent = 'LIOnetBot/0.1 (+own-index)'
 const firstMilestone = 10000
-const crawlWorkers = 6
-const maxQueueSize = 40000
-const maxLinksPerPage = 80
-const maxDocumentContent = 6000
+const crawlWorkers = 2
+// Pamięć procesu nie może rosnąć bez końca: limit dotyczy kolejki roboczej,
+// nie liczby stron, które LIOnet może ostatecznie zarejestrować.
+const maxQueueSize = 12000
+const maxLinksPerPage = 40
+const maxDocumentContent = 4000
+const maxHtmlBytes = 2_000_000
 let documents = []
 let indexModifiedAt = 0
 let ready = loadIndex()
@@ -137,7 +140,7 @@ function parseDocument(html, requestedUrl) {
     domain: parsed.hostname.replace(/^www\./, ''),
     path: parsed.pathname.replace(/^\//, '').replaceAll('/', ' › ') || 'strona główna',
     snippet: (description || fallbackSnippet || 'Strona została dodana do indeksu LIOnet.').slice(0, 360),
-    content: content.slice(0, 16000),
+    content: content.slice(0, maxDocumentContent),
     images: extractImages(html, url, title),
     indexedAt: new Date().toISOString()
   }
@@ -270,7 +273,25 @@ async function fetchHtml(rawUrl) {
   if (!response.ok) throw new Error(`Strona odpowiedziała kodem ${response.status}.`)
   const contentType = response.headers.get('content-type') || ''
   if (!contentType.includes('text/html') && !contentType.includes('application/xhtml+xml')) throw new Error('Adres nie prowadzi do strony HTML.')
-  return { html: await response.text(), url: response.url || rawUrl }
+  const reader = response.body?.getReader()
+  if (!reader) return { html: (await response.text()).slice(0, maxHtmlBytes), url: response.url || rawUrl }
+  const decoder = new TextDecoder()
+  const chunks = []
+  let totalBytes = 0
+  while (totalBytes < maxHtmlBytes) {
+    const { done, value } = await reader.read()
+    if (done) break
+    const remaining = maxHtmlBytes - totalBytes
+    const chunk = value.byteLength > remaining ? value.subarray(0, remaining) : value
+    totalBytes += chunk.byteLength
+    chunks.push(decoder.decode(chunk, { stream: chunk.byteLength === value.byteLength }))
+    if (chunk.byteLength < value.byteLength) {
+      await reader.cancel()
+      break
+    }
+  }
+  chunks.push(decoder.decode())
+  return { html: chunks.join(''), url: response.url || rawUrl }
 }
 
 function upsertDocument(document) {
@@ -300,7 +321,7 @@ async function crawlOne() {
     upsertDocument(document)
     crawlState.indexed = documents.length
     for (const link of extractLinks(html, url, host).slice(0, maxLinksPerPage)) enqueueUrl(link, host)
-    if (crawlState.attempted % 250 === 0) {
+    if (crawlState.attempted % 100 === 0) {
       await saveIndex()
       await persistCrawlStatus()
     }
