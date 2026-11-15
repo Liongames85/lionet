@@ -1,0 +1,17 @@
+{
+  "running": true,
+  "stopRequested": false,
+  "target": null,
+  "milestone": 10000,
+  "attempted": 7801,
+  "indexed": 7299,
+  "failed": 342,
+  "skipped": 24,
+  "queued": 11999,
+  "lastUrl": "https://www.national-geographic.pl/nauka/czy-zimny-prysznic-naprawde-chlodzi-w-upal-organizm-moze-zareagowac-odwrotnie/",
+  "lastError": "https://www.polskieradio.pl/42,Gospodarka: The operation was aborted due to timeout",
+  "startedAt": "2026-11-15T09:16:24.400Z",
+  "updatedAt": "2026-11-15T09:41:11.788Z",
+  "message": "Indeksowanie stron polskich i zagranicznych działa bez globalnego limitu.",
+  "progress": 73
+}
