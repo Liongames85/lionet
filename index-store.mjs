@@ -9,7 +9,7 @@ const seedsPath = path.join(root, 'data', 'crawl-seeds.json')
 const crawlStatusPath = path.join(root, 'data', 'crawl-status.json')
 const crawlUserAgent = 'LIOnetBot/0.1 (+own-index)'
 const firstMilestone = 10000
-const crawlWorkers = 2
+const crawlWorkers = 20
 // Pamięć procesu nie może rosnąć bez końca: limit dotyczy kolejki roboczej,
 // nie liczby stron, które LIOnet może ostatecznie zarejestrować.
 const maxQueueSize = 12000
