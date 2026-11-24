@@ -19,7 +19,12 @@
     "https://www.bankier.pl/",
     "https://www.uw.edu.pl/",
     "https://www.pw.edu.pl/",
-    "https://www.umcs.pl/"
+    "https://www.umcs.pl/",
+    "https://liongames.pl/",
+    "https://liontech.com.pl/",
+    "https://tzlaw.pl/",
+    "https://liovima.shop/",
+    "https://ogl.pl/"
   ],
   "foreign": [
     "https://www.bbc.com/",
@@ -33,14 +38,6 @@
     "https://www.nationalgeographic.com/",
     "https://www.euronews.com/",
     "https://www.britannica.com/",
-    "https://www.nytimes.com/",
-    "https://www.cnn.com/",
-    "https://www.nature.com/",
-    "https://www.python.org/",
-    "https://www.rust-lang.org/",
-    "https://www.gnu.org/",
-    "https://www.openstreetmap.org/",
-    "https://www.un.org/",
-    "https://www.who.int/"
+    "https://www.nytimes.com/"
   ]
 }
